@@ -4,7 +4,7 @@ tasks:
     created: {$fromNow: ''}
     deadline: {$fromNow: '12 hours'}
     provisionerId: aws-provisioner-v1
-    workerType: releng-svc-compute
+    workerType: relman-svc-compute
     payload:
       maxRunTime: 43200
       image: mozilla/bugbug-commit-retrieval
@@ -28,7 +28,7 @@ tasks:
     created: {$fromNow: ''}
     deadline: {$fromNow: '24 hours'}
     provisionerId: aws-provisioner-v1
-    workerType: releng-svc
+    workerType: relman-svc
     payload:
       env:
         TC_SECRET_ID: project/relman/bugbug/production
@@ -60,7 +60,7 @@ tasks:
     created: {$fromNow: ''}
     deadline: {$fromNow: '48 hours'}
     provisionerId: aws-provisioner-v1
-    workerType: releng-svc-compute
+    workerType: relman-svc-compute
     dependencies:
       - commit-retrieval
       - bugs-retrieval
@@ -87,7 +87,7 @@ tasks:
     created: {$fromNow: ''}
     deadline: {$fromNow: '48 hours'}
     provisionerId: aws-provisioner-v1
-    workerType: releng-svc-compute
+    workerType: relman-svc-compute
     dependencies:
       - commit-retrieval
       - bugs-retrieval
@@ -114,7 +114,7 @@ tasks:
     created: {$fromNow: ''}
     deadline: {$fromNow: '48 hours'}
     provisionerId: aws-provisioner-v1
-    workerType: releng-svc-compute
+    workerType: relman-svc-compute
     dependencies:
       - commit-retrieval
       - bugs-retrieval
@@ -141,7 +141,7 @@ tasks:
     created: {$fromNow: ''}
     deadline: {$fromNow: '48 hours'}
     provisionerId: aws-provisioner-v1
-    workerType: releng-svc-compute
+    workerType: relman-svc-compute
     dependencies:
       - commit-retrieval
       - bugs-retrieval
@@ -168,7 +168,7 @@ tasks:
     created: {$fromNow: ''}
     deadline: {$fromNow: '49 hours'}
     provisionerId: aws-provisioner-v1
-    workerType: releng-svc
+    workerType: relman-svc
     dependencies:
       - train-tracking
       - train-regression
