@@ -6,6 +6,7 @@
 import gzip
 import io
 import json
+import logging
 import lzma
 import os
 import pickle
@@ -19,6 +20,8 @@ import zstandard
 from bugbug import utils
 
 DATABASES = {}
+
+logger = logging.getLogger(__name__)
 
 
 def register(path, url, version, support_files=[]):
@@ -63,7 +66,7 @@ def download_support_file(path, file_name):
         url = urljoin(DATABASES[path]["url"], file_name)
         path = os.path.join(os.path.dirname(path), file_name)
 
-        print(f"Downloading {url} to {path}")
+        logger.info(f"Downloading {url} to {path}")
         utils.download_check_etag(url, path)
 
         if path.endswith(".zst") or path.endswith(".xz"):
@@ -73,13 +76,13 @@ def download_support_file(path, file_name):
             url = f"{os.path.splitext(url)[0]}.xz"
             path = f"{os.path.splitext(path)[0]}.xz"
 
-            print(f"Downloading {url} to {path}")
+            logger.info(f"Downloading {url} to {path}")
             utils.download_check_etag(url, path)
 
             extract_file(path)
 
         except requests.exceptions.HTTPError:
-            print(f"{file_name} is not yet available to download for {path}")
+            logger.exception(f"{file_name} is not yet available to download for {path}")
 
 
 def download_version(path):
@@ -99,18 +102,18 @@ def download(path, force=False, support_files_too=False):
         url = DATABASES[path]["url"]
         try:
             path_compressed = zst_path
-            print(f"Downloading {url} to {path_compressed}")
+            logger.info(f"Downloading {url} to {path_compressed}")
             utils.download_check_etag(url, path_compressed)
 
         except requests.exceptions.HTTPError:
             try:
                 url_xz = f"{os.path.splitext(url)[0]}.xz"
                 path_compressed = xz_path
-                print(f"Downloading {url_xz} to {path_compressed} instead")
+                logger.info(f"Downloading {url_xz} to {path_compressed} instead")
                 utils.download_check_etag(url_xz, path_compressed)
 
             except requests.exceptions.HTTPError:
-                print(f"{url} is not yet available to download")
+                logger.info(f"{url} is not yet available to download")
                 raise
 
     else:

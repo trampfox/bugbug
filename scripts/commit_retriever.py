@@ -20,7 +20,7 @@ class Retriever(object):
         assert os.path.isdir(cache_root), f"Cache root {cache_root} is not a dir."
         self.repo_dir = os.path.join(cache_root, "mozilla-central")
 
-    def retrieve_commits(self):
+    def retrieve_commits(self, limit=None):
         shared_dir = self.repo_dir + "-shared"
         cmd = hglib.util.cmdbuilder(
             "robustcheckout",
@@ -33,6 +33,8 @@ class Retriever(object):
         )
 
         cmd.insert(0, hglib.HGPATH)
+
+        logger.info("Starting the robustcheckout of mozilla-central")
 
         proc = hglib.util.popen(cmd)
         out, err = proc.communicate()
@@ -61,7 +63,7 @@ class Retriever(object):
         else:
             rev_start = 0
 
-        repository.download_commits(self.repo_dir, rev_start)
+        repository.download_commits(self.repo_dir, rev_start, limit=limit)
 
         logger.info("commit data extracted from repository")
 
@@ -79,10 +81,15 @@ def main():
     description = "Retrieve and extract the information from Mozilla-Central repository"
     parser = argparse.ArgumentParser(description=description)
 
+    parser.add_argument(
+        "--limit",
+        type=int,
+        help="Only download the N oldest commits, used mainly for integration tests",
+    )
     parser.add_argument("cache-root", help="Cache for repository clones.")
 
     args = parser.parse_args()
 
     retriever = Retriever(getattr(args, "cache-root"))
 
-    retriever.retrieve_commits()
+    retriever.retrieve_commits(args.limit)

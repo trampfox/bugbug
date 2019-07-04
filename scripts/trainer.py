@@ -42,7 +42,7 @@ class Trainer(object):
         logger.info(f"Decompressing {db_type} database")
         self.decompress_file(path)
 
-    def go(self, model_name):
+    def go(self, model_name, limit=None, download_db=True):
         # Download datasets that were built by bugbug_data.
         os.makedirs("data", exist_ok=True)
 
@@ -51,7 +51,10 @@ class Trainer(object):
         if issubclass(model_class, model.BugModel) or issubclass(
             model_class, model.BugCoupleModel
         ):
-            self.download_db("bugs")
+            if download_db:
+                self.download_db("bugs")
+            else:
+                logger.info("Skipping download of the bug database")
 
         if issubclass(model_class, model.CommitModel):
             self.download_db("commits")
@@ -59,7 +62,7 @@ class Trainer(object):
         logger.info(f"Training *{model_name}* model")
 
         model_obj = model_class()
-        metrics = model_obj.train()
+        metrics = model_obj.train(limit=limit)
 
         # Save the metrics as a file that can be uploaded as an artifact.
         metric_file_path = "metrics.json"
@@ -80,8 +83,19 @@ def main():
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("model", help="Which model to train.")
+    parser.add_argument(
+        "--limit",
+        type=int,
+        help="Only train on a subset of the data, used mainly for integrations tests",
+    )
+    parser.add_argument(
+        "--no-download",
+        action="store_false",
+        dest="download_db",
+        help="Do not download databases, uses whatever is on disk",
+    )
 
     args = parser.parse_args()
 
     retriever = Trainer()
-    retriever.go(args.model)
+    retriever.go(args.model, args.limit, args.download_db)

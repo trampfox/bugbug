@@ -659,7 +659,7 @@ def download_component_mapping():
     }
 
 
-def download_commits(repo_dir, rev_start=0, ret=False, save=True):
+def download_commits(repo_dir, rev_start=0, ret=False, save=True, limit=None):
     hg = hglib.open(repo_dir)
 
     revs = get_revs(hg, rev_start)
@@ -667,6 +667,8 @@ def download_commits(repo_dir, rev_start=0, ret=False, save=True):
     assert (
         len(revs) > 0
     ), "There should definitely be more than 0 commits, something is wrong"
+
+    print("REVS", revs, len(revs))
 
     first_pushdate = hg_log(hg, [b"0"])[0].pushdate
 

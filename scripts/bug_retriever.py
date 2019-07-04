@@ -2,7 +2,7 @@
 
 import argparse
 from datetime import datetime
-from logging import INFO, basicConfig, getLogger
+from logging import getLogger
 
 import zstandard
 from dateutil.relativedelta import relativedelta
@@ -10,12 +10,11 @@ from dateutil.relativedelta import relativedelta
 from bugbug import bug_snapshot, bugzilla, db, labels
 from bugbug.utils import get_secret
 
-basicConfig(level=INFO)
 logger = getLogger(__name__)
 
 
 class Retriever(object):
-    def retrieve_bugs(self):
+    def retrieve_bugs(self, limit=None):
         bugzilla.set_token(get_secret("BUGZILLA_TOKEN"))
 
         db.download_version(bugzilla.BUGS_DB)
@@ -41,10 +40,14 @@ class Retriever(object):
         timespan_ids = bugzilla.get_ids_between(
             two_years_and_six_months_ago, six_months_ago
         )
+        if limit:
+            timespan_ids = timespan_ids[:limit]
         logger.info(f"Retrieved {len(timespan_ids)} IDs.")
 
         # Get IDs of labelled bugs.
         labelled_bug_ids = labels.get_all_bug_ids()
+        if limit:
+            labelled_bug_ids = labelled_bug_ids[:limit]
         logger.info(f"{len(labelled_bug_ids)} labelled bugs to download.")
 
         all_ids = set(timespan_ids + labelled_bug_ids)
@@ -86,9 +89,14 @@ class Retriever(object):
 def main():
     description = "Retrieve and extract the information from Bugzilla instance"
     parser = argparse.ArgumentParser(description=description)
+    parser.add_argument(
+        "--limit",
+        type=int,
+        help="Only download the N oldest bugs, used mainly for integration tests",
+    )
 
     # Parse args to show the help if `--help` is passed
-    parser.parse_args()
+    args = parser.parse_args()
 
     retriever = Retriever()
-    retriever.retrieve_bugs()
+    retriever.retrieve_bugs(args.limit)

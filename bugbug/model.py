@@ -133,7 +133,7 @@ class Model:
 
         return top_features
 
-    def train(self, importance_cutoff=0.15):
+    def train(self, importance_cutoff=0.15, limit=None):
         classes, class_names = self.get_labels()
         class_names = sorted(list(class_names), reverse=True)
 
@@ -147,6 +147,10 @@ class Model:
         y = np.array(y_iter)
 
         print(f"X: {X.shape}, y: {y.shape}")
+
+        if limit:
+            X = X[:limit]
+            y = y[:limit]
 
         # Split dataset in training and test.
         X_train, X_test, y_train, y_test = train_test_split(
